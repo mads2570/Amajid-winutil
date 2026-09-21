@@ -9,12 +9,12 @@ A personalized Windows post-installation, debloating, optimization, and develope
 Run PowerShell as **Administrator** and execute:
 
 ```powershell
-irm https://raw.githubusercontent.com/mads2570/Amajid-winutil/main/docs/win | iex
+irm da.gd/amajidwin | iex
 ```
 
-### Or with GitHub Pages (once enabled):
+### Direct GitHub Fallback:
 ```powershell
-irm https://mads2570.github.io/Amajid-winutil/win | iex
+irm https://raw.githubusercontent.com/mads2570/Amajid-winutil/main/docs/win | iex
 ```
 
 ---
