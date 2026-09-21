@@ -2941,11 +2941,13 @@ function Initialize-InstallAppEntry {
         $border.Add_MouseEnter({
             if (($sync.$($this.Tag).IsChecked) -eq $false) {
                 $this.SetResourceReference([Windows.Controls.Control]::BackgroundProperty, "AppInstallHighlightedColor")
+                $this.SetResourceReference([Windows.Controls.Control]::BorderBrushProperty, "ButtonBackgroundMouseoverColor")
             }
         })
         $border.Add_MouseLeave({
             if (($sync.$($this.Tag).IsChecked) -eq $false) {
                 $this.SetResourceReference([Windows.Controls.Control]::BackgroundProperty, "AppInstallUnselectedColor")
+                $this.SetResourceReference([Windows.Controls.Control]::BorderBrushProperty, "BorderColor")
             }
         })
         $border.Add_MouseRightButtonUp({
@@ -2963,12 +2965,14 @@ function Initialize-InstallAppEntry {
             Invoke-WPFSelectedAppsUpdate -type "Add" -checkbox $this
             $borderElement = $this.Parent
             $borderElement.SetResourceReference([Windows.Controls.Control]::BackgroundProperty, "AppInstallSelectedColor")
+            $borderElement.SetResourceReference([Windows.Controls.Control]::BorderBrushProperty, "ButtonBackgroundSelectedColor")
         })
 
         $checkbox.Add_Unchecked({
             Invoke-WPFSelectedAppsUpdate -type "Remove" -checkbox $this
             $borderElement = $this.Parent
             $borderElement.SetResourceReference([Windows.Controls.Control]::BackgroundProperty, "AppInstallUnselectedColor")
+            $borderElement.SetResourceReference([Windows.Controls.Control]::BorderBrushProperty, "BorderColor")
         })
 
         # Create the TextBlock for the application name
@@ -3016,6 +3020,9 @@ function Initialize-InstallCategoryAppList {
             $toggleButton.Tag = "CategoryToggleButton"
             $toggleButton.SetResourceReference([Windows.Controls.Control]::FontSizeProperty, "HeaderFontSize")
             $toggleButton.SetResourceReference([Windows.Controls.Control]::FontFamilyProperty, "HeaderFontFamily")
+            $toggleButton.FontWeight = [Windows.FontWeights]::SemiBold
+            $toggleButton.SetResourceReference([Windows.Controls.Control]::ForegroundProperty, "LabelboxForegroundColor")
+            $toggleButton.Margin = New-Object Windows.Thickness(0, 10, 0, 4)
             $sync.$Category = $toggleButton
 
             $null = $TargetElement.Items.Add($toggleButton)
@@ -5944,6 +5951,14 @@ function Invoke-WPFButton {
         "WPFGetInstalledTweaks" {Invoke-WPFGetInstalled -CheckBox "tweaks"}
         "WPFGetIso" {Invoke-MicrowinGetIso}
         "WPFMicrowin" {Invoke-Microwin}
+        "WPFMinimizeButton" { $sync["Form"].WindowState = [Windows.WindowState]::Minimized }
+        "WPFMaximizeButton" {
+            if ($sync["Form"].WindowState -eq [Windows.WindowState]::Maximized) {
+                $sync["Form"].WindowState = [Windows.WindowState]::Normal
+            } else {
+                $sync["Form"].WindowState = [Windows.WindowState]::Maximized
+            }
+        }
         "WPFCloseButton" {Invoke-WPFCloseButton}
         "MicrowinScratchDirBT" {Invoke-ScratchDialog}
         "WPFWinUtilInstallPSProfile" {Invoke-WinUtilInstallPSProfile}
@@ -7540,6 +7555,9 @@ function Invoke-WPFUIElements {
             $label.Content = $category -replace ".*__", ""
             $label.SetResourceReference([Windows.Controls.Control]::FontSizeProperty, "HeaderFontSize")
             $label.SetResourceReference([Windows.Controls.Control]::FontFamilyProperty, "HeaderFontFamily")
+            $label.FontWeight = [Windows.FontWeights]::SemiBold
+            $label.SetResourceReference([Windows.Controls.Control]::ForegroundProperty, "LabelboxForegroundColor")
+            $label.Margin = New-Object Windows.Thickness(2, 10, 2, 4)
             $label.UseLayoutRounding = $true
             $itemsControl.Items.Add($label) | Out-Null
             $sync[$category] = $label
@@ -7552,6 +7570,7 @@ function Invoke-WPFUIElements {
                 switch ($entryInfo.Type) {
                     "Toggle" {
                         $dockPanel = New-Object Windows.Controls.DockPanel
+                        $dockPanel.Margin = New-Object Windows.Thickness(4, 2, 4, 2)
                         $checkBox = New-Object Windows.Controls.CheckBox
                         $checkBox.Name = $entryInfo.Name
                         $checkBox.HorizontalAlignment = "Right"
@@ -7673,6 +7692,12 @@ function Invoke-WPFUIElements {
                             $baseWidth = [int]$entryInfo.ButtonWidth
                             $button.Width = [math]::Max($baseWidth, 350)
                         }
+                        if ($entryInfo.Name -in @("WPFInstall", "WPFTweaksbutton", "WPFGetIso", "WPFMicrowin")) {
+                            $primaryStyle = $window.FindResource("PrimaryButtonStyle")
+                            if ($primaryStyle) {
+                                $button.Style = $primaryStyle
+                            }
+                        }
                         $itemsControl.Items.Add($button) | Out-Null
 
                         $sync[$entryInfo.Name] = $button
@@ -7703,6 +7728,7 @@ function Invoke-WPFUIElements {
                         $radioButton.SetResourceReference([Windows.Controls.Control]::FontSizeProperty, "ButtonFontSize")
                         $radioButton.ToolTip = $entryInfo.Description
                         $radioButton.UseLayoutRounding = $true
+                        $radioButton.Margin = New-Object Windows.Thickness(4, 2, 4, 2)
 
                         if ($entryInfo.Checked -eq $true) {
                             $radioButton.IsChecked = $true
@@ -7716,6 +7742,7 @@ function Invoke-WPFUIElements {
                     default {
                         $horizontalStackPanel = New-Object Windows.Controls.StackPanel
                         $horizontalStackPanel.Orientation = "Horizontal"
+                        $horizontalStackPanel.Margin = New-Object Windows.Thickness(4, 2, 4, 2)
 
                         $checkBox = New-Object Windows.Controls.CheckBox
                         $checkBox.Name = $entryInfo.Name
@@ -7736,6 +7763,7 @@ function Invoke-WPFUIElements {
                             $textBlock.ToolTip = $entryInfo.Link
                             $textBlock.Style = $HoverTextBlockStyle
                             $textBlock.UseLayoutRounding = $true
+                            $textBlock.Margin = New-Object Windows.Thickness(6, 0, 0, 0)
 
                             $horizontalStackPanel.Children.Add($textBlock) | Out-Null
 
@@ -11851,126 +11879,126 @@ $sync.configs.preset = @'
 $sync.configs.themes = @'
 {
   "shared": {
-    "AppEntryWidth": "130",
+    "AppEntryWidth": "165",
     "AppEntryFontSize": "11",
-    "AppEntryMargin": "1,1,1,1",
-    "AppEntryBorderThickness": "0",
+    "AppEntryMargin": "3",
+    "AppEntryBorderThickness": "1",
     "CustomDialogFontSize": "12",
     "CustomDialogFontSizeHeader": "14",
     "CustomDialogLogoSize": "25",
-    "CustomDialogWidth": "400",
-    "CustomDialogHeight": "200",
+    "CustomDialogWidth": "420",
+    "CustomDialogHeight": "210",
     "FontSize": "12",
-    "FontFamily": "Arial",
-    "HeaderFontSize": "16",
-    "HeaderFontFamily": "Consolas, Monaco",
+    "FontFamily": "Segoe UI Variable Text, Segoe UI, sans-serif",
+    "HeaderFontSize": "14",
+    "HeaderFontFamily": "Segoe UI Variable Display, Segoe UI Semibold, sans-serif",
     "CheckBoxBulletDecoratorSize": "14",
-    "CheckBoxMargin": "15,0,0,2",
-    "TabContentMargin": "5",
-    "TabButtonFontSize": "14",
-    "TabButtonWidth": "110",
-    "TabButtonHeight": "26",
-    "TabRowHeightInPixels": "50",
-    "ToolTipWidth": "300",
-    "IconFontSize": "14",
-    "IconButtonSize": "35",
-    "SettingsIconFontSize": "18",
-    "CloseIconFontSize": "18",
+    "CheckBoxMargin": "8,2,2,2",
+    "TabContentMargin": "8",
+    "TabButtonFontSize": "13",
+    "TabButtonWidth": "100",
+    "TabButtonHeight": "32",
+    "TabRowHeightInPixels": "52",
+    "ToolTipWidth": "320",
+    "IconFontSize": "13",
+    "IconButtonSize": "32",
+    "SettingsIconFontSize": "15",
+    "CloseIconFontSize": "14",
     "MicroWinLogoSize": "10",
     "MicrowinCheckBoxMargin": "-10,5,0,0",
-    "GroupBorderBackgroundColor": "#232629",
+    "GroupBorderBackgroundColor": "#18181b",
     "ButtonFontSize": "12",
-    "ButtonFontFamily": "Arial",
-    "ButtonWidth": "200",
-    "ButtonHeight": "25",
-    "ConfigTabButtonFontSize": "14",
-    "ConfigUpdateButtonFontSize": "14",
-    "SearchBarWidth": "200",
-    "SearchBarHeight": "26",
+    "ButtonFontFamily": "Segoe UI Variable Text, Segoe UI, sans-serif",
+    "ButtonWidth": "190",
+    "ButtonHeight": "30",
+    "ConfigTabButtonFontSize": "13",
+    "ConfigUpdateButtonFontSize": "13",
+    "SearchBarWidth": "220",
+    "SearchBarHeight": "30",
     "SearchBarTextBoxFontSize": "12",
-    "SearchBarClearButtonFontSize": "14",
-    "CheckboxMouseOverColor": "#999999",
+    "SearchBarClearButtonFontSize": "13",
+    "CheckboxMouseOverColor": "#38bdf8",
     "ButtonBorderThickness": "1",
-    "ButtonMargin": "1",
-    "ButtonCornerRadius": "2"
+    "ButtonMargin": "2",
+    "ButtonCornerRadius": "6"
   },
   "Light": {
-    "AppInstallUnselectedColor": "#F7F7F7",
-    "AppInstallHighlightedColor": "#CFCFCF",
-    "AppInstallSelectedColor": "#C2C2C2",
-    "AppInstallOverlayBackgroundColor": "#6A6D72",
-    "ComboBoxForegroundColor": "#232629",
-    "ComboBoxBackgroundColor": "#F7F7F7",
-    "LabelboxForegroundColor": "#232629",
-    "MainForegroundColor": "#232629",
-    "MainBackgroundColor": "#F7F7F7",
-    "LabelBackgroundColor": "#F7F7F7",
-    "LinkForegroundColor": "#484848",
-    "LinkHoverForegroundColor": "#232629",
-    "ScrollBarBackgroundColor": "#4A4D52",
-    "ScrollBarHoverColor": "#5A5D62",
-    "ScrollBarDraggingColor": "#6A6D72",
-    "MicrowinBusyColor": "#2e77ff",
-    "ProgressBarForegroundColor": "#2e77ff",
+    "AppInstallUnselectedColor": "#ffffff",
+    "AppInstallHighlightedColor": "#f1f5f9",
+    "AppInstallSelectedColor": "#e0f2fe",
+    "AppInstallOverlayBackgroundColor": "#f8fafc",
+    "ComboBoxForegroundColor": "#0f172a",
+    "ComboBoxBackgroundColor": "#ffffff",
+    "LabelboxForegroundColor": "#0284c7",
+    "MainForegroundColor": "#0f172a",
+    "MainBackgroundColor": "#f8fafc",
+    "LabelBackgroundColor": "Transparent",
+    "LinkForegroundColor": "#0284c7",
+    "LinkHoverForegroundColor": "#0369a1",
+    "ScrollBarBackgroundColor": "#f1f5f9",
+    "ScrollBarHoverColor": "#e2e8f0",
+    "ScrollBarDraggingColor": "#0078d4",
+    "MicrowinBusyColor": "#0078d4",
+    "ProgressBarForegroundColor": "#0078d4",
     "ProgressBarBackgroundColor": "Transparent",
-    "ProgressBarTextColor": "#232629",
-    "ButtonInstallBackgroundColor": "#F7F7F7",
-    "ButtonTweaksBackgroundColor": "#F7F7F7",
-    "ButtonConfigBackgroundColor": "#F7F7F7",
-    "ButtonUpdatesBackgroundColor": "#F7F7F7",
-    "ButtonInstallForegroundColor": "#232629",
-    "ButtonTweaksForegroundColor": "#232629",
-    "ButtonConfigForegroundColor": "#232629",
-    "ButtonUpdatesForegroundColor": "#232629",
-    "ButtonBackgroundColor": "#F5F5F5",
-    "ButtonBackgroundPressedColor": "#1A1A1A",
-    "ButtonBackgroundMouseoverColor": "#C2C2C2",
-    "ButtonBackgroundSelectedColor": "#F0F0F0",
-    "ButtonForegroundColor": "#232629",
-    "ToggleButtonOnColor": "#2e77ff",
-    "ToggleButtonOffColor": "#707070",
-    "ToolTipBackgroundColor": "#F7F7F7",
-    "BorderColor": "#232629",
-    "BorderOpacity": "0.2"
+    "ProgressBarTextColor": "#0f172a",
+    "ButtonInstallBackgroundColor": "Transparent",
+    "ButtonTweaksBackgroundColor": "Transparent",
+    "ButtonConfigBackgroundColor": "Transparent",
+    "ButtonUpdatesBackgroundColor": "Transparent",
+    "ButtonInstallForegroundColor": "#0f172a",
+    "ButtonTweaksForegroundColor": "#0f172a",
+    "ButtonConfigForegroundColor": "#0f172a",
+    "ButtonUpdatesForegroundColor": "#0f172a",
+    "ButtonBackgroundColor": "#ffffff",
+    "ButtonBackgroundPressedColor": "#e2e8f0",
+    "ButtonBackgroundMouseoverColor": "#f1f5f9",
+    "ButtonBackgroundSelectedColor": "#0078d4",
+    "ButtonForegroundColor": "#0f172a",
+    "ToggleButtonOnColor": "#0078d4",
+    "ToggleButtonOffColor": "#cbd5e1",
+    "ToolTipBackgroundColor": "#ffffff",
+    "BorderColor": "#e2e8f0",
+    "BorderOpacity": "0.9"
   },
   "Dark": {
-    "AppInstallUnselectedColor": "#232629",
-    "AppInstallHighlightedColor": "#3C3C3C",
-    "AppInstallSelectedColor": "#4C4C4C",
-    "AppInstallOverlayBackgroundColor": "#2E3135",
-    "ComboBoxForegroundColor": "#F7F7F7",
-    "ComboBoxBackgroundColor": "#1E3747",
-    "LabelboxForegroundColor": "#0567ff",
-    "MainForegroundColor": "#F7F7F7",
-    "MainBackgroundColor": "#232629",
-    "LabelBackgroundColor": "#232629",
-    "LinkForegroundColor": "#add8e6",
-    "LinkHoverForegroundColor": "#F7F7F7",
-    "ScrollBarBackgroundColor": "#2E3135",
-    "ScrollBarHoverColor": "#3B4252",
-    "ScrollBarDraggingColor": "#5E81AC",
-    "MicrowinBusyColor": "#2e77ff",
-    "ProgressBarForegroundColor": "#222222",
+    "AppInstallUnselectedColor": "#18181b",
+    "AppInstallHighlightedColor": "#242429",
+    "AppInstallSelectedColor": "#1e293b",
+    "AppInstallOverlayBackgroundColor": "#202024",
+    "ComboBoxForegroundColor": "#f4f4f5",
+    "ComboBoxBackgroundColor": "#18181b",
+    "LabelboxForegroundColor": "#38bdf8",
+    "MainForegroundColor": "#f4f4f5",
+    "MainBackgroundColor": "#101012",
+    "LabelBackgroundColor": "Transparent",
+    "LinkForegroundColor": "#38bdf8",
+    "LinkHoverForegroundColor": "#7dd3fc",
+    "ScrollBarBackgroundColor": "#18181b",
+    "ScrollBarHoverColor": "#27272a",
+    "ScrollBarDraggingColor": "#0078d4",
+    "MicrowinBusyColor": "#0078d4",
+    "ProgressBarForegroundColor": "#0078d4",
     "ProgressBarBackgroundColor": "Transparent",
-    "ProgressBarTextColor": "#232629",
-    "ButtonInstallBackgroundColor": "#222222",
-    "ButtonTweaksBackgroundColor": "#333333",
-    "ButtonConfigBackgroundColor": "#444444",
-    "ButtonUpdatesBackgroundColor": "#555555",
-    "ButtonInstallForegroundColor": "#F7F7F7",
-    "ButtonTweaksForegroundColor": "#F7F7F7",
-    "ButtonConfigForegroundColor": "#F7F7F7",
-    "ButtonUpdatesForegroundColor": "#F7F7F7",
-    "ButtonBackgroundColor": "#1E3747",
-    "ButtonBackgroundPressedColor": "#F7F7F7",
-    "ButtonBackgroundMouseoverColor": "#3B4252",
-    "ButtonBackgroundSelectedColor": "#5E81AC",
-    "ButtonForegroundColor": "#F7F7F7",
-    "ToggleButtonOnColor": "#2e77ff",
-    "ToggleButtonOffColor": "#707070",
-    "ToolTipBackgroundColor": "#2F373D",
-    "BorderColor": "#2F373D",
-    "BorderOpacity": "0.2"
+    "ProgressBarTextColor": "#f4f4f5",
+    "ButtonInstallBackgroundColor": "Transparent",
+    "ButtonTweaksBackgroundColor": "Transparent",
+    "ButtonConfigBackgroundColor": "Transparent",
+    "ButtonUpdatesBackgroundColor": "Transparent",
+    "ButtonInstallForegroundColor": "#f4f4f5",
+    "ButtonTweaksForegroundColor": "#f4f4f5",
+    "ButtonConfigForegroundColor": "#f4f4f5",
+    "ButtonUpdatesForegroundColor": "#f4f4f5",
+    "ButtonBackgroundColor": "#1e1e22",
+    "ButtonBackgroundPressedColor": "#141416",
+    "ButtonBackgroundMouseoverColor": "#2d2d34",
+    "ButtonBackgroundSelectedColor": "#0078d4",
+    "ButtonForegroundColor": "#f4f4f5",
+    "ToggleButtonOnColor": "#0078d4",
+    "ToggleButtonOffColor": "#4b4b53",
+    "ToolTipBackgroundColor": "#18181b",
+    "BorderColor": "#27272a",
+    "BorderOpacity": "0.8"
   }
 }
 '@ | ConvertFrom-Json
@@ -15487,7 +15515,7 @@ $inputXML = @'
         MinHeight="600"
         Title="WinUtil">
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="0" CornerRadius="10"/>
+        <WindowChrome CaptionHeight="0" CornerRadius="12"/>
     </WindowChrome.WindowChrome>
     <Window.Resources>
     <Style TargetType="ToolTip">
@@ -15555,11 +15583,49 @@ $inputXML = @'
             </Trigger>
         </Style.Triggers>
     </Style>
+    <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+        <Setter Property="Margin" Value="{DynamicResource ButtonMargin}"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Background" Value="{DynamicResource ButtonBackgroundSelectedColor}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource ButtonBackgroundSelectedColor}"/>
+        <Setter Property="Height" Value="{DynamicResource ButtonHeight}"/>
+        <Setter Property="Width" Value="{DynamicResource ButtonWidth}"/>
+        <Setter Property="FontSize" Value="{DynamicResource ButtonFontSize}"/>
+        <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="BackgroundBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{DynamicResource ButtonCornerRadius}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10,2,10,2"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="BackgroundBorder" Property="Background" Value="{DynamicResource LinkForegroundColor}"/>
+                            <Setter TargetName="BackgroundBorder" Property="BorderBrush" Value="{DynamicResource LinkForegroundColor}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="BackgroundBorder" Property="Background" Value="#005a9e"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="BackgroundBorder" Property="Background" Value="#3a3a40"/>
+                            <Setter Property="Foreground" Value="DimGray"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <Style x:Key="AppEntryBorderStyle" TargetType="Border">
-        <Setter Property="BorderBrush" Value="Gray"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
         <Setter Property="BorderThickness" Value="{DynamicResource AppEntryBorderThickness}"/>
-        <Setter Property="CornerRadius" Value="5"/>
-        <Setter Property="Padding" Value="{DynamicResource AppEntryMargin}"/>
+        <Setter Property="CornerRadius" Value="6"/>
+        <Setter Property="Padding" Value="8,5,8,5"/>
         <Setter Property="Width" Value="{DynamicResource AppEntryWidth}"/>
         <Setter Property="VerticalAlignment" Value="Top"/>
         <Setter Property="Margin" Value="{DynamicResource AppEntryMargin}"/>
@@ -15570,7 +15636,7 @@ $inputXML = @'
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Margin" Value="{DynamicResource AppEntryMargin}"/>
+        <Setter Property="Margin" Value="2,0,0,0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="CheckBox">
@@ -15584,10 +15650,10 @@ $inputXML = @'
     </Style>
     <Style x:Key="AppEntryNameStyle" TargetType="TextBlock">
         <Setter Property="FontSize" Value="{DynamicResource AppEntryFontSize}"/>
-        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontWeight" Value="Normal"/>
         <Setter Property="Foreground" Value="{DynamicResource MainForegroundColor}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Margin" Value="{DynamicResource AppEntryMargin}"/>
+        <Setter Property="Margin" Value="6,0,0,0"/>
         <Setter Property="Background" Value="Transparent"/>
     </Style>
     <Style x:Key="AppEntryButtonStyle" TargetType="Button">
@@ -15779,52 +15845,28 @@ $inputXML = @'
             <Setter Property="Margin" Value="{DynamicResource ButtonMargin}"/>
             <Setter Property="Content" Value=""/>
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
-                        <Grid>
-                            <Border x:Name="ButtonGlow"
-                                        Background="{TemplateBinding Background}"
-                                        BorderBrush="{DynamicResource ButtonForegroundColor}"
-                                        BorderThickness="{DynamicResource ButtonBorderThickness}"
-                                        CornerRadius="{DynamicResource ButtonCornerRadius}">
-                                <Grid>
-                                    <Border x:Name="BackgroundBorder"
-                                        Background="{TemplateBinding Background}"
-                                        BorderBrush="{DynamicResource ButtonBackgroundColor}"
-                                        BorderThickness="{DynamicResource ButtonBorderThickness}"
-                                        CornerRadius="{DynamicResource ButtonCornerRadius}">
-                                        <ContentPresenter
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"
-                                            Margin="10,2,10,2"/>
-                                    </Border>
-                                </Grid>
-                            </Border>
-                        </Grid>
+                        <Border x:Name="BackgroundBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="Transparent"
+                                BorderThickness="1"
+                                CornerRadius="{DynamicResource ButtonCornerRadius}">
+                            <ContentPresenter
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Margin="10,2,10,2"/>
+                        </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="BackgroundBorder" Property="Background" Value="{DynamicResource ButtonBackgroundMouseoverColor}"/>
-                                <Setter Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect Opacity="1" ShadowDepth="5" Color="{DynamicResource CButtonBackgroundMouseoverColor}" Direction="-100" BlurRadius="15"/>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="Panel.ZIndex" Value="2000"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="BorderBrush" Value="Pink"/>
-                                <Setter Property="BorderThickness" Value="2"/>
                                 <Setter TargetName="BackgroundBorder" Property="Background" Value="{DynamicResource ButtonBackgroundSelectedColor}"/>
-                                <Setter Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect Opacity="1" ShadowDepth="2" Color="{DynamicResource CButtonBackgroundMouseoverColor}" Direction="-111" BlurRadius="10"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                            <Trigger Property="IsChecked" Value="False">
-                                <Setter Property="BorderBrush" Value="Transparent"/>
-                                <Setter Property="BorderThickness" Value="{DynamicResource ButtonBorderThickness}"/>
+                                <Setter TargetName="BackgroundBorder" Property="BorderBrush" Value="{DynamicResource ToggleButtonOnColor}"/>
+                                <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -15966,62 +16008,61 @@ $inputXML = @'
         </Style>
 
         <Style x:Key="SearchBarClearButtonStyle" TargetType="Button">
-            <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
             <Setter Property="FontSize" Value="{DynamicResource SearchBarClearButtonFontSize}"/>
-            <Setter Property="Content" Value="X"/>
-            <Setter Property="Height" Value="{DynamicResource SearchBarClearButtonFontSize}"/>
-            <Setter Property="Width" Value="{DynamicResource SearchBarClearButtonFontSize}"/>
+            <Setter Property="Content" Value="&#xE8BB;"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="Width" Value="18"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="{DynamicResource MainForegroundColor}"/>
             <Setter Property="Padding" Value="0"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="Red"/>
-                    <Setter Property="Background" Value="Transparent"/>
-                    <Setter Property="BorderThickness" Value="10"/>
-                    <Setter Property="Cursor" Value="Hand"/>
+                    <Setter Property="Foreground" Value="#ef4444"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
         <!-- Checkbox template -->
         <Style TargetType="CheckBox">
             <Setter Property="Foreground" Value="{DynamicResource MainForegroundColor}"/>
-            <Setter Property="Background" Value="{DynamicResource MainBackgroundColor}"/>
+            <Setter Property="Background" Value="Transparent"/>
             <Setter Property="FontSize" Value="{DynamicResource FontSize}" />
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
             <Setter Property="TextElement.FontFamily" Value="{DynamicResource FontFamily}"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="CheckBox">
-                        <Grid Background="{TemplateBinding Background}" Margin="{DynamicResource CheckBoxMargin}">
+                        <Grid Background="Transparent" Margin="{DynamicResource CheckBoxMargin}">
                             <BulletDecorator Background="Transparent">
                                 <BulletDecorator.Bullet>
                                     <Grid Width="{DynamicResource CheckBoxBulletDecoratorSize}" Height="{DynamicResource CheckBoxBulletDecoratorSize}">
                                         <Border x:Name="Border"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderBrush="{DynamicResource BorderColor}"
                                                 Background="{DynamicResource ButtonBackgroundColor}"
                                                 BorderThickness="1"
-                                                Width="{DynamicResource CheckBoxBulletDecoratorSize *0.85}"
-                                                Height="{DynamicResource CheckBoxBulletDecoratorSize *0.85}"
-                                                Margin="2"
-                                                SnapsToDevicePixels="True"/>
-                                        <Viewbox x:Name="CheckMarkContainer"
+                                                CornerRadius="4"
                                                 Width="{DynamicResource CheckBoxBulletDecoratorSize}"
                                                 Height="{DynamicResource CheckBoxBulletDecoratorSize}"
+                                                SnapsToDevicePixels="True"/>
+                                        <Viewbox x:Name="CheckMarkContainer"
+                                                Width="10"
+                                                Height="10"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 Visibility="Collapsed">
                                             <Path x:Name="CheckMark"
-                                                  Stroke="{DynamicResource ToggleButtonOnColor}"
-                                                  StrokeThickness="1.5"
-                                                  Data="M 0 5 L 5 10 L 12 0"
+                                                  Stroke="White"
+                                                  StrokeThickness="1.8"
+                                                  Data="M 0 5 L 4 9 L 10 0"
                                                   Stretch="Uniform"/>
                                         </Viewbox>
                                     </Grid>
                                 </BulletDecorator.Bullet>
-                                <ContentPresenter Margin="4,0,0,0"
+                                <ContentPresenter Margin="6,0,0,0"
                                                   HorizontalAlignment="Left"
                                                   VerticalAlignment="Center"
                                                   RecognizesAccessKey="True"/>
@@ -16030,10 +16071,11 @@ $inputXML = @'
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="CheckMarkContainer" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource ToggleButtonOnColor}"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource ToggleButtonOnColor}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <!--Setter TargetName="Border" Property="Background" Value="{DynamicResource ButtonBackgroundPressedColor}"/-->
-                                <Setter Property="Foreground" Value="{DynamicResource ButtonBackgroundPressedColor}"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource LinkForegroundColor}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -16042,41 +16084,42 @@ $inputXML = @'
         </Style>
         <Style TargetType="RadioButton">
             <Setter Property="Foreground" Value="{DynamicResource MainForegroundColor}"/>
-            <Setter Property="Background" Value="{DynamicResource MainBackgroundColor}"/>
+            <Setter Property="Background" Value="Transparent"/>
             <Setter Property="FontSize" Value="{DynamicResource FontSize}" />
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
+            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
                         <StackPanel Orientation="Horizontal" Margin="{DynamicResource CheckBoxMargin}">
-                            <Viewbox Width="{DynamicResource CheckBoxBulletDecoratorSize}" Height="{DynamicResource CheckBoxBulletDecoratorSize}">
-                                <Grid Width="14" Height="14">
-                                    <Ellipse x:Name="OuterCircle"
-                                            Stroke="{DynamicResource ToggleButtonOffColor}"
-                                            Fill="{DynamicResource ButtonBackgroundColor}"
-                                            StrokeThickness="1"
-                                            Width="14"
-                                            Height="14"
-                                            SnapsToDevicePixels="True"/>
-                                    <Ellipse x:Name="InnerCircle"
-                                            Fill="{DynamicResource ToggleButtonOnColor}"
-                                            Width="8"
-                                            Height="8"
-                                            Visibility="Collapsed"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center"/>
-                                </Grid>
-                            </Viewbox>
-                            <ContentPresenter Margin="4,0,0,0"
+                            <Grid Width="16" Height="16">
+                                <Ellipse x:Name="OuterCircle"
+                                        Stroke="{DynamicResource BorderColor}"
+                                        Fill="{DynamicResource ButtonBackgroundColor}"
+                                        StrokeThickness="1.5"
+                                        Width="16"
+                                        Height="16"
+                                        SnapsToDevicePixels="True"/>
+                                <Ellipse x:Name="InnerCircle"
+                                        Fill="White"
+                                        Width="6"
+                                        Height="6"
+                                        Visibility="Collapsed"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"/>
+                            </Grid>
+                            <ContentPresenter Margin="6,0,0,0"
                                             VerticalAlignment="Center"
                                             RecognizesAccessKey="True"/>
                         </StackPanel>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="InnerCircle" Property="Visibility" Value="Visible"/>
+                                <Setter TargetName="OuterCircle" Property="Fill" Value="{DynamicResource ToggleButtonOnColor}"/>
+                                <Setter TargetName="OuterCircle" Property="Stroke" Value="{DynamicResource ToggleButtonOnColor}"/>
                             </Trigger>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="OuterCircle" Property="Stroke" Value="{DynamicResource ToggleButtonOnColor}"/>
+                                <Setter TargetName="OuterCircle" Property="Stroke" Value="{DynamicResource LinkForegroundColor}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -16259,27 +16302,27 @@ $inputXML = @'
         </Style>
 
         <Style x:Key="BorderStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource MainBackgroundColor}"/>
+            <Setter Property="Background" Value="{DynamicResource GroupBorderBackgroundColor}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="5"/>
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="Margin" Value="5"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="Margin" Value="4"/>
             <Setter Property="Effect">
                 <Setter.Value>
-                    <DropShadowEffect ShadowDepth="5" BlurRadius="5" Opacity="{DynamicResource BorderOpacity}" Color="{DynamicResource CBorderColor}"/>
+                    <DropShadowEffect ShadowDepth="2" BlurRadius="6" Opacity="0.2" Color="#000000"/>
                 </Setter.Value>
             </Setter>
         </Style>
 
         <Style TargetType="TextBox">
-            <Setter Property="Background" Value="{DynamicResource MainBackgroundColor}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource MainForegroundColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="{DynamicResource MainForegroundColor}"/>
             <Setter Property="FontSize" Value="{DynamicResource FontSize}"/>
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
-            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Padding" Value="6,4,6,4"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -16292,7 +16335,7 @@ $inputXML = @'
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ContextMenu">
-                                            <Border Background="{DynamicResource MainBackgroundColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="5" Padding="5">
+                                            <Border Background="{DynamicResource MainBackgroundColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="6" Padding="4">
                                                 <StackPanel>
                                                     <MenuItem Command="Cut" Header="Cut"/>
                                                     <MenuItem Command="Copy" Header="Copy"/>
@@ -16313,7 +16356,7 @@ $inputXML = @'
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5">
+                                CornerRadius="6">
                             <Grid>
                                 <ScrollViewer x:Name="PART_ContentHost" />
                             </Grid>
@@ -16321,20 +16364,15 @@ $inputXML = @'
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect ShadowDepth="5" BlurRadius="5" Opacity="{DynamicResource BorderOpacity}" Color="{DynamicResource CBorderColor}"/>
-                </Setter.Value>
-            </Setter>
         </Style>
         <Style TargetType="PasswordBox">
-            <Setter Property="Background" Value="{DynamicResource MainBackgroundColor}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource MainForegroundColor}"/>
+            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundColor}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderColor}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Foreground" Value="{DynamicResource MainForegroundColor}"/>
             <Setter Property="FontSize" Value="{DynamicResource FontSize}"/>
             <Setter Property="FontFamily" Value="{DynamicResource FontFamily}"/>
-            <Setter Property="Padding" Value="5"/>
+            <Setter Property="Padding" Value="6,4,6,4"/>
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
@@ -16345,17 +16383,12 @@ $inputXML = @'
                         <Border Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="5">
+                                CornerRadius="6">
                             <Grid>
                                 <ScrollViewer x:Name="PART_ContentHost" />
                             </Grid>
                         </Border>
                     </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect ShadowDepth="5" BlurRadius="5" Opacity="{DynamicResource BorderOpacity}" Color="{DynamicResource CBorderColor}"/>
                 </Setter.Value>
             </Setter>
         </Style>
@@ -16387,50 +16420,54 @@ $inputXML = @'
             </Grid.ColumnDefinitions>
 
             <!-- Navigation Buttons Panel -->
-            <StackPanel Name="NavDockPanel" Orientation="Horizontal" Grid.Column="0" Margin="5,5,10,5">
-                <StackPanel Name="NavLogoPanel" Orientation="Horizontal" HorizontalAlignment="Left" Background="{DynamicResource MainBackgroundColor}" SnapsToDevicePixels="True" Margin="10,0,20,0">
+            <Border Grid.Column="0" Margin="10,6,10,6" Background="{DynamicResource GroupBorderBackgroundColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="8" Padding="3,2,3,2">
+                <StackPanel Name="NavDockPanel" Orientation="Horizontal">
+                    <StackPanel Name="NavLogoPanel" Orientation="Horizontal" HorizontalAlignment="Left" Background="Transparent" SnapsToDevicePixels="True" Margin="8,0,14,0" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource LinkForegroundColor}" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <TextBlock Text="Amajid WinUtil" FontWeight="Bold" FontSize="13" Foreground="{DynamicResource MainForegroundColor}" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <ToggleButton Margin="2,0,2,0" Height="{DynamicResource TabButtonHeight}" Width="{DynamicResource TabButtonWidth}"
+                        FontWeight="SemiBold" Name="WPFTab1BT">
+                        <ToggleButton.Content>
+                            <TextBlock FontSize="{DynamicResource TabButtonFontSize}" Background="Transparent">
+                                <Underline>I</Underline>nstall
+                            </TextBlock>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                    <ToggleButton Margin="2,0,2,0" Height="{DynamicResource TabButtonHeight}" Width="{DynamicResource TabButtonWidth}"
+                        FontWeight="SemiBold" Name="WPFTab2BT">
+                        <ToggleButton.Content>
+                            <TextBlock FontSize="{DynamicResource TabButtonFontSize}" Background="Transparent">
+                                <Underline>T</Underline>weaks
+                            </TextBlock>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                    <ToggleButton Margin="2,0,2,0" Height="{DynamicResource TabButtonHeight}" Width="{DynamicResource TabButtonWidth}"
+                        FontWeight="SemiBold" Name="WPFTab3BT">
+                        <ToggleButton.Content>
+                            <TextBlock FontSize="{DynamicResource TabButtonFontSize}" Background="Transparent">
+                                <Underline>C</Underline>onfig
+                            </TextBlock>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                    <ToggleButton Margin="2,0,2,0" Height="{DynamicResource TabButtonHeight}" Width="{DynamicResource TabButtonWidth}"
+                        FontWeight="SemiBold" Name="WPFTab4BT">
+                        <ToggleButton.Content>
+                            <TextBlock FontSize="{DynamicResource TabButtonFontSize}" Background="Transparent">
+                                <Underline>U</Underline>pdates
+                            </TextBlock>
+                        </ToggleButton.Content>
+                    </ToggleButton>
+                    <ToggleButton Margin="2,0,2,0" Height="{DynamicResource TabButtonHeight}" Width="{DynamicResource TabButtonWidth}"
+                        FontWeight="SemiBold" Name="WPFTab5BT">
+                        <ToggleButton.Content>
+                            <TextBlock FontSize="{DynamicResource TabButtonFontSize}" Background="Transparent">
+                                <Underline>M</Underline>icroWin
+                            </TextBlock>
+                        </ToggleButton.Content>
+                    </ToggleButton>
                 </StackPanel>
-                <ToggleButton Margin="0,0,5,0" Height="{DynamicResource TabButtonHeight}" Width="{DynamicResource TabButtonWidth}"
-                    Background="{DynamicResource ButtonInstallBackgroundColor}" Foreground="white" FontWeight="Bold" Name="WPFTab1BT">
-                    <ToggleButton.Content>
-                        <TextBlock FontSize="{DynamicResource TabButtonFontSize}" Background="Transparent" Foreground="{DynamicResource ButtonInstallForegroundColor}" >
-                            <Underline>I</Underline>nstall
-                        </TextBlock>
-                    </ToggleButton.Content>
-                </ToggleButton>
-                <ToggleButton Margin="0,0,5,0" Height="{DynamicResource TabButtonHeight}" Width="{DynamicResource TabButtonWidth}"
-                    Background="{DynamicResource ButtonTweaksBackgroundColor}" Foreground="{DynamicResource ButtonTweaksForegroundColor}" FontWeight="Bold" Name="WPFTab2BT">
-                    <ToggleButton.Content>
-                        <TextBlock FontSize="{DynamicResource TabButtonFontSize}" Background="Transparent" Foreground="{DynamicResource ButtonTweaksForegroundColor}">
-                            <Underline>T</Underline>weaks
-                        </TextBlock>
-                    </ToggleButton.Content>
-                </ToggleButton>
-                <ToggleButton Margin="0,0,5,0" Height="{DynamicResource TabButtonHeight}" Width="{DynamicResource TabButtonWidth}"
-                    Background="{DynamicResource ButtonConfigBackgroundColor}" Foreground="{DynamicResource ButtonConfigForegroundColor}" FontWeight="Bold" Name="WPFTab3BT">
-                    <ToggleButton.Content>
-                        <TextBlock FontSize="{DynamicResource TabButtonFontSize}" Background="Transparent" Foreground="{DynamicResource ButtonConfigForegroundColor}">
-                            <Underline>C</Underline>onfig
-                        </TextBlock>
-                    </ToggleButton.Content>
-                </ToggleButton>
-                <ToggleButton Margin="0,0,5,0" Height="{DynamicResource TabButtonHeight}" Width="{DynamicResource TabButtonWidth}"
-                    Background="{DynamicResource ButtonUpdatesBackgroundColor}" Foreground="{DynamicResource ButtonUpdatesForegroundColor}" FontWeight="Bold" Name="WPFTab4BT">
-                    <ToggleButton.Content>
-                        <TextBlock FontSize="{DynamicResource TabButtonFontSize}" Background="Transparent" Foreground="{DynamicResource ButtonUpdatesForegroundColor}">
-                            <Underline>U</Underline>pdates
-                        </TextBlock>
-                    </ToggleButton.Content>
-                </ToggleButton>
-                <ToggleButton Margin="0,0,5,0" Height="{DynamicResource TabButtonHeight}" Width="{DynamicResource TabButtonWidth}"
-                    Background="{DynamicResource ButtonUpdatesBackgroundColor}" Foreground="{DynamicResource ButtonUpdatesForegroundColor}" FontWeight="Bold" Name="WPFTab5BT">
-                    <ToggleButton.Content>
-                        <TextBlock FontSize="{DynamicResource TabButtonFontSize}" Background="Transparent" Foreground="{DynamicResource ButtonUpdatesForegroundColor}">
-                            <Underline>M</Underline>icroWin
-                        </TextBlock>
-                    </ToggleButton.Content>
-                </ToggleButton>
-            </StackPanel>
+            </Border>
 
             <!-- Search Bar and Action Buttons -->
             <Grid Name="GridBesideNavDockPanel" Grid.Column="1" Background="{DynamicResource MainBackgroundColor}" ShowGridLines="False" Height="Auto">
@@ -16439,49 +16476,33 @@ $inputXML = @'
                     <ColumnDefinition Width="Auto"/><!-- Buttons area -->
                 </Grid.ColumnDefinitions>
 
-                <!--
-                  TODO:
-                    Make this SearchBar TextBox Position itself and still
-                    house the Magnifying Glass Character in place,
-                    even if that Magnifying Icon changed its Size,
-                    it should be positioned relative to the SearchBar.
-                    Consider using a Math Solver, will help in making
-                    development of these things much easier
-                -->
-                <Border Grid.Column="0" Margin="5,0,0,0" Width="{DynamicResource SearchBarWidth}" Height="{DynamicResource SearchBarHeight}" VerticalAlignment="Center" HorizontalAlignment="Left">
+                <Border Name="SearchBarContainer" Visibility="{Binding Visibility, ElementName=SearchBar}" Grid.Column="0" Margin="8,0,0,0" Width="{DynamicResource SearchBarWidth}" Height="{DynamicResource SearchBarHeight}" VerticalAlignment="Center" HorizontalAlignment="Left" CornerRadius="6" Background="{DynamicResource GroupBorderBackgroundColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1">
                     <Grid>
                         <TextBox
                             Width="{DynamicResource SearchBarWidth}"
                             Height="{DynamicResource SearchBarHeight}"
                             FontSize="{DynamicResource SearchBarTextBoxFontSize}"
                             VerticalAlignment="Center" HorizontalAlignment="Left"
-                            BorderThickness="1"
+                            BorderThickness="0"
                             Name="SearchBar"
-                            Foreground="{DynamicResource MainForegroundColor}" Background="{DynamicResource MainBackgroundColor}"
-                            Padding="3,3,30,0"
+                            Foreground="{DynamicResource MainForegroundColor}" Background="Transparent"
+                            Padding="8,5,28,0"
                             ToolTip="Press Ctrl-F and type app name to filter application list below. Press Esc to reset the filter">
                         </TextBox>
                         <TextBlock
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             FontFamily="Segoe MDL2 Assets"
-                            Foreground="{DynamicResource ButtonBackgroundSelectedColor}"
+                            Foreground="{DynamicResource LinkForegroundColor}"
                             FontSize="{DynamicResource IconFontSize}"
                             Margin="0,0,8,0" Width="Auto" Height="Auto">&#xE721;
                         </TextBlock>
                     </Grid>
                 </Border>
-                <!--
-                  TODO:
-                    Make this ClearButton Positioning react to
-                    SearchBar Width Value changing, so it'll look correct.
-                    Consider using a Math Solver, will help in making
-                    development of these things much easier
-                -->
                 <Button Grid.Column="0"
                     VerticalAlignment="Center" HorizontalAlignment="Left"
                     Name="SearchBarClearButton"
                     Style="{StaticResource SearchBarClearButtonStyle}"
-                    Margin="213,0,0,0" Visibility="Collapsed">
+                    Margin="230,0,0,0" Visibility="Collapsed">
                 </Button>
 
                 <!-- Buttons Container -->
@@ -16626,15 +16647,44 @@ $inputXML = @'
                     </Border>
                 </Popup>
 
-                    <Button
-                    Content="&#xD7;" BorderThickness="0"
-                BorderBrush="Transparent"
-                Background="{DynamicResource MainBackgroundColor}"
-                Width="{DynamicResource IconButtonSize}" Height="{DynamicResource IconButtonSize}"
-                HorizontalAlignment="Right" VerticalAlignment="Top"
-                Margin="0,0,0,0"
-                FontFamily="{DynamicResource FontFamily}"
-                Foreground="{DynamicResource MainForegroundColor}" FontSize="{DynamicResource CloseIconFontSize}" Name="WPFCloseButton" />
+                    <Button Name="WPFMinimizeButton" Style="{StaticResource HoverButtonStyle}"
+                        Width="{DynamicResource IconButtonSize}" Height="{DynamicResource IconButtonSize}"
+                        FontFamily="Segoe MDL2 Assets" FontSize="11" Content="&#xE921;"
+                        Background="Transparent" BorderBrush="Transparent" BorderThickness="0"
+                        Foreground="{DynamicResource MainForegroundColor}" ToolTip="Minimize"
+                        Margin="0,0,2,0"/>
+                    <Button Name="WPFMaximizeButton" Style="{StaticResource HoverButtonStyle}"
+                        Width="{DynamicResource IconButtonSize}" Height="{DynamicResource IconButtonSize}"
+                        FontFamily="Segoe MDL2 Assets" FontSize="11" Content="&#xE922;"
+                        Background="Transparent" BorderBrush="Transparent" BorderThickness="0"
+                        Foreground="{DynamicResource MainForegroundColor}" ToolTip="Maximize / Restore"
+                        Margin="0,0,2,0"/>
+                    <Button Name="WPFCloseButton"
+                        Width="{DynamicResource IconButtonSize}" Height="{DynamicResource IconButtonSize}"
+                        FontFamily="Segoe MDL2 Assets" FontSize="10" Content="&#xE8BB;"
+                        Background="Transparent" BorderThickness="0"
+                        Foreground="{DynamicResource MainForegroundColor}" ToolTip="Close">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="CloseBorder" Background="{TemplateBinding Background}" CornerRadius="4">
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="CloseBorder" Property="Background" Value="#e81123"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                    <Setter Property="Cursor" Value="Hand"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                    </Button>
                 </StackPanel>
             </Grid>
         </Grid>
@@ -16673,23 +16723,25 @@ $inputXML = @'
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <StackPanel Background="{DynamicResource MainBackgroundColor}" Orientation="Vertical" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="5">
-                                <Label Content="Recommended Selections:" FontSize="{DynamicResource FontSize}" VerticalAlignment="Center" Margin="2"/>
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,2,0,0">
-                                    <Button Name="WPFstandard" Content=" Standard " Margin="2" Width="{DynamicResource ButtonWidth}" Height="{DynamicResource ButtonHeight}"/>
-                                    <Button Name="WPFminimal" Content=" Minimal " Margin="2" Width="{DynamicResource ButtonWidth}" Height="{DynamicResource ButtonHeight}"/>
-                                    <Button Name="WPFClearTweaksSelection" Content=" Clear " Margin="2" Width="{DynamicResource ButtonWidth}" Height="{DynamicResource ButtonHeight}"/>
-                                    <Button Name="WPFGetInstalledTweaks" Content=" Get Installed " Margin="2" Width="{DynamicResource ButtonWidth}" Height="{DynamicResource ButtonHeight}"/>
+                            <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Style="{StaticResource BorderStyle}" Margin="4,2,4,6">
+                                <StackPanel Orientation="Vertical" Margin="2">
+                                    <Label Content="Quick Presets:" FontWeight="SemiBold" Foreground="{DynamicResource LabelboxForegroundColor}" FontSize="{DynamicResource FontSize}" VerticalAlignment="Center" Margin="2,0,2,4"/>
+                                    <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                                        <Button Name="WPFstandard" Content="Standard" Margin="2" Width="{DynamicResource ButtonWidth}" Height="{DynamicResource ButtonHeight}"/>
+                                        <Button Name="WPFminimal" Content="Minimal" Margin="2" Width="{DynamicResource ButtonWidth}" Height="{DynamicResource ButtonHeight}"/>
+                                        <Button Name="WPFClearTweaksSelection" Content="Clear" Margin="2" Width="{DynamicResource ButtonWidth}" Height="{DynamicResource ButtonHeight}"/>
+                                        <Button Name="WPFGetInstalledTweaks" Content="Get Installed" Margin="2" Width="{DynamicResource ButtonWidth}" Height="{DynamicResource ButtonHeight}"/>
+                                    </WrapPanel>
                                 </StackPanel>
-                            </StackPanel>
+                            </Border>
 
                             <Grid Name="tweakspanel" Grid.Row="1">
                                 <!-- Your tweakspanel content goes here -->
                             </Grid>
 
-                            <Border Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="0" Style="{StaticResource BorderStyle}">
-                                <StackPanel Background="{DynamicResource MainBackgroundColor}" Orientation="Horizontal" HorizontalAlignment="Left">
-                                    <TextBlock Padding="10">
+                            <Border Grid.ColumnSpan="2" Grid.Row="2" Grid.Column="0" Style="{StaticResource BorderStyle}" Margin="4,6,4,2">
+                                <StackPanel Background="Transparent" Orientation="Horizontal" HorizontalAlignment="Left">
+                                    <TextBlock Padding="8">
                                         Note: Hover over items to get a better description. Please be careful as many of these tweaks will heavily modify your system.
                                         <LineBreak/>Recommended selections are for normal users and if you are unsure do NOT check anything else!
                                     </TextBlock>
@@ -16697,10 +16749,10 @@ $inputXML = @'
                             </Border>
                         </Grid>
                     </ScrollViewer>
-                    <Border Grid.Row="1" Background="{DynamicResource MainBackgroundColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="5" HorizontalAlignment="Stretch" Padding="10">
+                    <Border Grid.Row="1" Background="{DynamicResource GroupBorderBackgroundColor}" BorderBrush="{DynamicResource BorderColor}" BorderThickness="1" CornerRadius="8" HorizontalAlignment="Stretch" Padding="8" Margin="8,2,8,8">
                         <WrapPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Grid.Column="0">
-                            <Button Name="WPFTweaksbutton" Content="Run Tweaks" Margin="5" Width="{DynamicResource ButtonWidth}" Height="{DynamicResource ButtonHeight}"/>
-                            <Button Name="WPFUndoall" Content="Undo Selected Tweaks" Margin="5" Width="{DynamicResource ButtonWidth}" Height="{DynamicResource ButtonHeight}"/>
+                            <Button Name="WPFTweaksbutton" Style="{StaticResource PrimaryButtonStyle}" Content="Run Tweaks" Margin="4" Width="{DynamicResource ButtonWidth}" Height="{DynamicResource ButtonHeight}"/>
+                            <Button Name="WPFUndoall" Content="Undo Selected Tweaks" Margin="4" Width="{DynamicResource ButtonWidth}" Height="{DynamicResource ButtonHeight}"/>
                         </WrapPanel>
                     </Border>
                 </Grid>
@@ -16753,8 +16805,10 @@ $inputXML = @'
                             <Border Grid.Column="1" Style="{StaticResource BorderStyle}">
                                 <StackPanel>
                                     <Button Name="WPFUpdatessecurity"
+                                            Style="{StaticResource PrimaryButtonStyle}"
                                             FontSize="{DynamicResource ConfigTabButtonFontSize}"
-                                            Content="Security Settings"
+                                            Content="Security Settings (Recommended)"
+                                            Width="Auto"
                                             Margin="10,5"
                                             Padding="10"/>
                                     <TextBlock Margin="10"

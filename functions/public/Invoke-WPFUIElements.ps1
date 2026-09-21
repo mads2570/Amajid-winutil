@@ -140,6 +140,9 @@ function Invoke-WPFUIElements {
             $label.Content = $category -replace ".*__", ""
             $label.SetResourceReference([Windows.Controls.Control]::FontSizeProperty, "HeaderFontSize")
             $label.SetResourceReference([Windows.Controls.Control]::FontFamilyProperty, "HeaderFontFamily")
+            $label.FontWeight = [Windows.FontWeights]::SemiBold
+            $label.SetResourceReference([Windows.Controls.Control]::ForegroundProperty, "LabelboxForegroundColor")
+            $label.Margin = New-Object Windows.Thickness(2, 10, 2, 4)
             $label.UseLayoutRounding = $true
             $itemsControl.Items.Add($label) | Out-Null
             $sync[$category] = $label
@@ -152,6 +155,7 @@ function Invoke-WPFUIElements {
                 switch ($entryInfo.Type) {
                     "Toggle" {
                         $dockPanel = New-Object Windows.Controls.DockPanel
+                        $dockPanel.Margin = New-Object Windows.Thickness(4, 2, 4, 2)
                         $checkBox = New-Object Windows.Controls.CheckBox
                         $checkBox.Name = $entryInfo.Name
                         $checkBox.HorizontalAlignment = "Right"
@@ -273,6 +277,12 @@ function Invoke-WPFUIElements {
                             $baseWidth = [int]$entryInfo.ButtonWidth
                             $button.Width = [math]::Max($baseWidth, 350)
                         }
+                        if ($entryInfo.Name -in @("WPFInstall", "WPFTweaksbutton", "WPFGetIso", "WPFMicrowin")) {
+                            $primaryStyle = $window.FindResource("PrimaryButtonStyle")
+                            if ($primaryStyle) {
+                                $button.Style = $primaryStyle
+                            }
+                        }
                         $itemsControl.Items.Add($button) | Out-Null
 
                         $sync[$entryInfo.Name] = $button
@@ -303,6 +313,7 @@ function Invoke-WPFUIElements {
                         $radioButton.SetResourceReference([Windows.Controls.Control]::FontSizeProperty, "ButtonFontSize")
                         $radioButton.ToolTip = $entryInfo.Description
                         $radioButton.UseLayoutRounding = $true
+                        $radioButton.Margin = New-Object Windows.Thickness(4, 2, 4, 2)
 
                         if ($entryInfo.Checked -eq $true) {
                             $radioButton.IsChecked = $true
@@ -316,6 +327,7 @@ function Invoke-WPFUIElements {
                     default {
                         $horizontalStackPanel = New-Object Windows.Controls.StackPanel
                         $horizontalStackPanel.Orientation = "Horizontal"
+                        $horizontalStackPanel.Margin = New-Object Windows.Thickness(4, 2, 4, 2)
 
                         $checkBox = New-Object Windows.Controls.CheckBox
                         $checkBox.Name = $entryInfo.Name
@@ -336,6 +348,7 @@ function Invoke-WPFUIElements {
                             $textBlock.ToolTip = $entryInfo.Link
                             $textBlock.Style = $HoverTextBlockStyle
                             $textBlock.UseLayoutRounding = $true
+                            $textBlock.Margin = New-Object Windows.Thickness(6, 0, 0, 0)
 
                             $horizontalStackPanel.Children.Add($textBlock) | Out-Null
 

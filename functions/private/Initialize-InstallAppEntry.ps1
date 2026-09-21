@@ -25,11 +25,13 @@ function Initialize-InstallAppEntry {
         $border.Add_MouseEnter({
             if (($sync.$($this.Tag).IsChecked) -eq $false) {
                 $this.SetResourceReference([Windows.Controls.Control]::BackgroundProperty, "AppInstallHighlightedColor")
+                $this.SetResourceReference([Windows.Controls.Control]::BorderBrushProperty, "ButtonBackgroundMouseoverColor")
             }
         })
         $border.Add_MouseLeave({
             if (($sync.$($this.Tag).IsChecked) -eq $false) {
                 $this.SetResourceReference([Windows.Controls.Control]::BackgroundProperty, "AppInstallUnselectedColor")
+                $this.SetResourceReference([Windows.Controls.Control]::BorderBrushProperty, "BorderColor")
             }
         })
         $border.Add_MouseRightButtonUp({
@@ -47,12 +49,14 @@ function Initialize-InstallAppEntry {
             Invoke-WPFSelectedAppsUpdate -type "Add" -checkbox $this
             $borderElement = $this.Parent
             $borderElement.SetResourceReference([Windows.Controls.Control]::BackgroundProperty, "AppInstallSelectedColor")
+            $borderElement.SetResourceReference([Windows.Controls.Control]::BorderBrushProperty, "ButtonBackgroundSelectedColor")
         })
 
         $checkbox.Add_Unchecked({
             Invoke-WPFSelectedAppsUpdate -type "Remove" -checkbox $this
             $borderElement = $this.Parent
             $borderElement.SetResourceReference([Windows.Controls.Control]::BackgroundProperty, "AppInstallUnselectedColor")
+            $borderElement.SetResourceReference([Windows.Controls.Control]::BorderBrushProperty, "BorderColor")
         })
 
         # Create the TextBlock for the application name

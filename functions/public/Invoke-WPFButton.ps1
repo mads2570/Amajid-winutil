@@ -58,6 +58,14 @@ function Invoke-WPFButton {
         "WPFGetInstalledTweaks" {Invoke-WPFGetInstalled -CheckBox "tweaks"}
         "WPFGetIso" {Invoke-MicrowinGetIso}
         "WPFMicrowin" {Invoke-Microwin}
+        "WPFMinimizeButton" { $sync["Form"].WindowState = [Windows.WindowState]::Minimized }
+        "WPFMaximizeButton" {
+            if ($sync["Form"].WindowState -eq [Windows.WindowState]::Maximized) {
+                $sync["Form"].WindowState = [Windows.WindowState]::Normal
+            } else {
+                $sync["Form"].WindowState = [Windows.WindowState]::Maximized
+            }
+        }
         "WPFCloseButton" {Invoke-WPFCloseButton}
         "MicrowinScratchDirBT" {Invoke-ScratchDialog}
         "WPFWinUtilInstallPSProfile" {Invoke-WinUtilInstallPSProfile}
