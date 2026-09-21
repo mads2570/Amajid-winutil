@@ -1,38 +1,27 @@
 Function Show-CTTLogo {
     <#
         .SYNOPSIS
-            Displays the CTT logo in ASCII art.
+            Displays the Amajid WinUtil logo in ASCII art.
         .DESCRIPTION
-            This function displays the CTT logo in ASCII art format.
+            This function displays the logo in ASCII art format.
         .PARAMETER None
             No parameters are required for this function.
         .EXAMPLE
             Show-CTTLogo
-            Prints the CTT logo in ASCII art format to the console.
     #>
 
     $asciiArt = @"
-    CCCCCCCCCCCCCTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
- CCC::::::::::::CT:::::::::::::::::::::TT:::::::::::::::::::::T
-CC:::::::::::::::CT:::::::::::::::::::::TT:::::::::::::::::::::T
-C:::::CCCCCCCC::::CT:::::TT:::::::TT:::::TT:::::TT:::::::TT:::::T
-C:::::C       CCCCCCTTTTTT  T:::::T  TTTTTTTTTTTT  T:::::T  TTTTTT
-C:::::C                     T:::::T                T:::::T
-C:::::C                     T:::::T                T:::::T
-C:::::C                     T:::::T                T:::::T
-C:::::C                     T:::::T                T:::::T
-C:::::C                     T:::::T                T:::::T
-C:::::C                     T:::::T                T:::::T
-C:::::C       CCCCCC        T:::::T                T:::::T
-C:::::CCCCCCCC::::C      TT:::::::TT            TT:::::::TT
-CC:::::::::::::::C       T:::::::::T            T:::::::::T
-CCC::::::::::::C         T:::::::::T            T:::::::::T
-  CCCCCCCCCCCCC          TTTTTTTTTTT            TTTTTTTTTTT
+    _                     _ _     _  __        ___       _   _ _
+   / \   _ __ ___   __ _ (_) (_) __| | \ \      / (_)_ __ | | | | |_(_) |
+  / _ \ | '_ ` _ \ / _` || | | |/ _` |  \ \ /\ / /| | '_ \| | | | __| | |
+ / ___ \| | | | | | (_| || | | | (_| |   \ V  V / | | | | | |_| | |_| | |
+/_/   \_\_| |_| |_|\__,_|/ | |_|\__,_|    \_/\_/  |_|_| |_|\___/ \__|_|_|
+                       |__/
 
-====Chris Titus Tech=====
-=====Windows Toolbox=====
+================ Amajid Windows Utility ================
+================= Custom Toolbox & Dev =================
 "@
 
-    Write-Host $asciiArt
+    Write-Host $asciiArt -ForegroundColor Cyan
 }
 

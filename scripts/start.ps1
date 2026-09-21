@@ -1,8 +1,8 @@
 <#
 .NOTES
-    Author         : Chris Titus @christitustech
+    Author         : Amajid / mads2570 (Forked from Chris Titus @christitustech)
     Runspace Author: @DeveloperDurp
-    GitHub         : https://github.com/ChrisTitusTech
+    GitHub         : https://github.com/mads2570/Amajid-winutil
     Version        : #{replaceme}
 #>
 
@@ -62,7 +62,7 @@ if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]:
     $script = if ($PSCommandPath) {
         "& { & `'$($PSCommandPath)`' $($argList -join ' ') }"
     } else {
-        "&([ScriptBlock]::Create((irm https://github.com/ChrisTitusTech/winutil/releases/latest/download/winutil.ps1))) $($argList -join ' ')"
+        "&([ScriptBlock]::Create((irm https://raw.githubusercontent.com/mads2570/Amajid-winutil/main/winutil.ps1))) $($argList -join ' ')"
     }
 
     $powershellCmd = if (Get-Command pwsh -ErrorAction SilentlyContinue) { "pwsh" } else { "powershell" }
@@ -84,5 +84,5 @@ $logdir = "$env:localappdata\winutil\logs"
 Start-Transcript -Path "$logdir\winutil_$dateTime.log" -Append -NoClobber | Out-Null
 
 # Set PowerShell window title
-$Host.UI.RawUI.WindowTitle = "WinUtil (Admin)"
+$Host.UI.RawUI.WindowTitle = "Amajid WinUtil (Admin)"
 clear-host

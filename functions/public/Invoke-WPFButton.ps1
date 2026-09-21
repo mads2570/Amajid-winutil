@@ -62,6 +62,11 @@ function Invoke-WPFButton {
         "MicrowinScratchDirBT" {Invoke-ScratchDialog}
         "WPFWinUtilInstallPSProfile" {Invoke-WinUtilInstallPSProfile}
         "WPFWinUtilUninstallPSProfile" {Invoke-WinUtilUninstallPSProfile}
+        "WPFInstallGoodbyeDPI" {Invoke-WPFGoodbyeDPI -Action 'InstallService'}
+        "WPFRemoveGoodbyeDPI" {Invoke-WPFGoodbyeDPI -Action 'RemoveService'}
+        "WPFInstallZapret" {Invoke-WPFZapret -Action 'InstallService' -Preset 'DiscordYoutube'}
+        "WPFRemoveZapret" {Invoke-WPFZapret -Action 'RemoveService'}
+        "WPFOmniRouteStack" {Invoke-WPFOmniRouteStack}
         "WPFWinUtilSSHServer" {Invoke-WPFSSHServer}
         "WPFselectedAppsButton" {$sync.selectedAppsPopup.IsOpen = -not $sync.selectedAppsPopup.IsOpen}
         "WPFMicrowinPanelBack" {Toggle-MicrowinPanel 1}

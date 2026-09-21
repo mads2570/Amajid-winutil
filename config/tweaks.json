@@ -1,4 +1,69 @@
 {
+  "WPFTweaksAmajidProfile": {
+    "Content": "Amajid PowerShell Profile & Theme",
+    "Description": "Installs Amajid's personal PowerShell profile, Oh-My-Posh theme, pastel PSReadLine syntax highlighting, and utilities.",
+    "category": "Customize Preferences",
+    "panel": "1",
+    "Order": "a001_",
+    "InvokeScript": [
+      "Invoke-WinUtilInstallPSProfile"
+    ],
+    "UndoScript": [
+      "Invoke-WinUtilUninstallPSProfile"
+    ]
+  },
+  "WPFTweaksGoodbyeDPI": {
+    "Content": "GoodbyeDPI Background Service",
+    "Description": "Downloads ValdikSS GoodbyeDPI and installs it as an automatic Windows Service with standard anti-censorship flags.",
+    "category": "Customize Preferences",
+    "panel": "1",
+    "Order": "a002_",
+    "InvokeScript": [
+      "Invoke-WPFGoodbyeDPI -Action 'InstallService'"
+    ],
+    "UndoScript": [
+      "Invoke-WPFGoodbyeDPI -Action 'RemoveService'"
+    ]
+  },
+  "WPFTweaksZapretDiscord": {
+    "Content": "Zapret Service (Discord & YouTube)",
+    "Description": "Installs Zapret (winws) as a Windows Service with packet desync rules tailored for YouTube buffering and Discord connection unblocking.",
+    "category": "Customize Preferences",
+    "panel": "1",
+    "Order": "a003_",
+    "InvokeScript": [
+      "Invoke-WPFZapret -Action 'InstallService' -Preset 'DiscordYoutube'"
+    ],
+    "UndoScript": [
+      "Invoke-WPFZapret -Action 'RemoveService'"
+    ]
+  },
+  "WPFTweaksZapretGeneral": {
+    "Content": "Zapret Service (General DPI Bypass)",
+    "Description": "Installs Zapret (winws) as a Windows Service with general multi-protocol DPI bypass rules.",
+    "category": "Customize Preferences",
+    "panel": "1",
+    "Order": "a004_",
+    "InvokeScript": [
+      "Invoke-WPFZapret -Action 'InstallService' -Preset 'General'"
+    ],
+    "UndoScript": [
+      "Invoke-WPFZapret -Action 'RemoveService'"
+    ]
+  },
+  "WPFTweaksOmniRouteStack": {
+    "Content": "OmniRoute & OpenClaw AI Stack",
+    "Description": "Configures OmniRoute environment, provisions OpenClaw workspace and sets up OpenCode AI model routing.",
+    "category": "Customize Preferences",
+    "panel": "1",
+    "Order": "a005_",
+    "InvokeScript": [
+      "Invoke-WPFOmniRouteStack"
+    ],
+    "UndoScript": [
+      "Write-Host 'OmniRoute stack retained in profile.'"
+    ]
+  },
   "WPFTweaksAH": {
     "Content": "Disable Activity History",
     "Description": "This erases recent docs, clipboard, and run history.",

@@ -1,41 +1,29 @@
-# Chris Titus Tech's Windows Utility
+# Amajid's Windows Utility (Amajid-WinUtil)
 
-[![Version](https://img.shields.io/github/v/release/ChrisTitusTech/winutil?color=%230567ff&label=Latest%20Release&style=for-the-badge)](https://github.com/ChrisTitusTech/winutil/releases/latest)
-![GitHub Downloads (specific asset, all releases)](https://img.shields.io/github/downloads/ChrisTitusTech/winutil/winutil.ps1?label=Total%20Downloads&style=for-the-badge)
-[![](https://dcbadge.limes.pink/api/server/https://discord.gg/RUbZUZyByQ?theme=default-inverted&style=for-the-badge)](https://discord.gg/RUbZUZyByQ)
-[![Static Badge](https://img.shields.io/badge/Documentation-_?style=for-the-badge&logo=bookstack&color=grey)](https://winutil.christitus.com/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-mads2570%2FAmajid--winutil-blue?style=for-the-badge&logo=github)](https://github.com/mads2570/Amajid-winutil)
 
-This utility is a compilation of Windows tasks I perform on each Windows system I use. It is meant to streamline *installs*, debloat with *tweaks*, troubleshoot with *config*, and fix Windows *updates*. I am extremely picky about any contributions to keep this project clean and efficient.
+A personalized Windows post-installation, debloating, optimization, and developer toolkit based on Chris Titus Tech's WinUtil. Custom-tailored for fresh Windows installations with personal PowerShell themes, network DPI circumvention (GoodbyeDPI & Zapret), and AI tooling stacks (OmniRoute, OpenClaw, OpenCode).
 
-![screen-install](https://raw.githubusercontent.com/Chris-Titus-Docs/winutil-docs/refs/heads/main/assets/images/Title-Screen.png)
+## 💡 Quick Launch
 
-## 💡 Usage
+Run PowerShell as **Administrator** and execute:
 
-Winutil must be run in Admin mode because it performs system-wide tweaks. To achieve this, run PowerShell as an administrator. Here are a few ways to do it:
-
-1. **Start menu Method:**
-   - Right-click on the start menu.
-   - Choose "Windows PowerShell (Admin)" (for Windows 10) or "Terminal (Admin)" (for Windows 11).
-
-2. **Search and Launch Method:**
-   - Press the Windows key.
-   - Type "PowerShell" or "Terminal" (for Windows 11).
-   - Press `Ctrl + Shift + Enter` or Right-click and choose "Run as administrator" to launch it with administrator privileges.
-
-### Launch Command
-
-#### Stable Branch (Recommended)
-
-```ps1
-irm "https://christitus.com/win" | iex
-```
-#### Dev Branch
-
-```ps1
-irm "https://christitus.com/windev" | iex
+```powershell
+irm https://raw.githubusercontent.com/mads2570/Amajid-winutil/main/docs/win | iex
 ```
 
-If you have Issues, refer to [Known Issues](https://winutil.christitus.com/knownissues/)
+### Or with GitHub Pages (once enabled):
+```powershell
+irm https://mads2570.github.io/Amajid-winutil/win | iex
+```
+
+---
+
+## ✨ Custom Features in this Edition
+- **Amajid PowerShell Theme & Profile**: Automated setup for PowerShell 7 with Oh-My-Posh (fish theme), custom pastel PSReadLine syntax highlighting, Terminal-Icons, and workflow shortcuts.
+- **GoodbyeDPI Service**: Automatic download and Windows Service installer/manager for ValdikSS GoodbyeDPI.
+- **Zapret / Zapret2 Service**: Preconfigured `winws` service installation with YouTube & Discord unblock presets and general DPI bypass.
+- **OmniRoute, OpenClaw & OpenCode Stack**: Automated provisioning of local AI routing gateway (`.omniroute`) and multi-agent workspace (`.openclaw`).
 
 ## 🎓 Documentation
 

@@ -9,19 +9,25 @@ function Invoke-WinUtilInstallPSProfile {
         param ($PSProfile)
 
         function Invoke-PSSetup {
-            # Define the URL used to download Chris Titus Tech's PowerShell profile.
-            $url = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
+            # Define the URL used to download Amajid's PowerShell profile (with upstream fallback).
+            $url = "https://raw.githubusercontent.com/mads2570/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
+            $fallbackUrl = "https://raw.githubusercontent.com/ChrisTitusTech/powershell-profile/main/Microsoft.PowerShell_profile.ps1"
 
             # Get the file hash for the user's current PowerShell profile.
             $OldHash = Get-FileHash $PSProfile -ErrorAction SilentlyContinue
 
-            # Download Chris Titus Tech's PowerShell profile to the 'TEMP' folder.
-            Invoke-RestMethod $url -OutFile "$env:TEMP/Microsoft.PowerShell_profile.ps1"
+            # Download PowerShell profile to the 'TEMP' folder.
+            try {
+                Invoke-RestMethod $url -OutFile "$env:TEMP/Microsoft.PowerShell_profile.ps1" -ErrorAction Stop
+            } catch {
+                Write-Host "Primary repo profile not found, falling back to upstream..." -ForegroundColor Yellow
+                Invoke-RestMethod $fallbackUrl -OutFile "$env:TEMP/Microsoft.PowerShell_profile.ps1"
+            }
 
-            # Get the file hash for Chris Titus Tech's PowerShell profile.
+            # Get the file hash for the downloaded PowerShell profile.
             $NewHash = Get-FileHash "$env:TEMP/Microsoft.PowerShell_profile.ps1"
 
-            # Store the file hash of Chris Titus Tech's PowerShell profile.
+            # Store the file hash of the PowerShell profile.
             if (!(Test-Path "$PSProfile.hash")) {
                 $NewHash.Hash | Out-File "$PSProfile.hash"
             }
@@ -49,13 +55,14 @@ function Invoke-WinUtilInstallPSProfile {
                     }
                 }
 
-                # Let the user know Chris Titus Tech's PowerShell profile is being installed.
+                # Let the user know the PowerShell profile is being installed.
                 Write-Host "===> Installing Profile... <===" -ForegroundColor Yellow
 
                 # Start a new hidden PowerShell instance because setup.ps1 does not work in runspaces.
-                Start-Process -FilePath "pwsh" -ArgumentList "-ExecutionPolicy Bypass -NoProfile -Command `"Invoke-Expression (Invoke-WebRequest `'https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1`')`"" -WindowStyle Hidden -Wait
+                $setupCmd = 'try { irm https://raw.githubusercontent.com/mads2570/powershell-profile/main/setup.ps1 | iex } catch { irm https://github.com/ChrisTitusTech/powershell-profile/raw/main/setup.ps1 | iex }'
+                Start-Process -FilePath "pwsh" -ArgumentList "-ExecutionPolicy Bypass -NoProfile -Command `"$setupCmd`"" -WindowStyle Hidden -Wait
 
-                # Let the user know Chris Titus Tech's PowerShell profile has been installed successfully.
+                # Let the user know the PowerShell profile has been installed successfully.
                 Write-Host "Profile has been installed. Please restart your shell to reflect the changes!" -ForegroundColor Magenta
 
                 # Let the user know Chris Titus Tech's PowerShell profile has been setup successfully.

@@ -1,0 +1,38 @@
+<#
+    Amajid Windows Utility Loader
+    Runs the latest Amajid WinUtil directly in an elevated PowerShell session.
+#>
+$ErrorActionPreference = 'Stop'
+Write-Host ">>> Loading Amajid WinUtil..." -ForegroundColor Cyan
+
+# Check for Administrator privileges; relaunch elevated if necessary
+if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+    Write-Host ">>> Relaunching as Administrator..." -ForegroundColor Yellow
+    $loaderCmd = "irm https://raw.githubusercontent.com/mads2570/Amajid-winutil/main/docs/win | iex"
+    $pwsh = if (Get-Command pwsh -ErrorAction SilentlyContinue) { "pwsh" } else { "powershell" }
+    $term = if (Get-Command wt.exe -ErrorAction SilentlyContinue) { "wt.exe" } else { $pwsh }
+
+    if ($term -eq "wt.exe") {
+        Start-Process wt.exe -ArgumentList "$pwsh -NoProfile -ExecutionPolicy Bypass -Command `"$loaderCmd`"" -Verb RunAs
+    } else {
+        Start-Process $pwsh -ArgumentList "-NoProfile -ExecutionPolicy Bypass -Command `"$loaderCmd`"" -Verb RunAs
+    }
+    return
+}
+
+# Download and execute the compiled WinUtil script
+$repoUrl = "https://raw.githubusercontent.com/mads2570/Amajid-winutil/main/winutil.ps1"
+try {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
+    $winutil = Invoke-RestMethod -Uri $repoUrl -UseBasicParsing
+    Invoke-Expression -Command $winutil
+} catch {
+    Write-Host ">>> Primary source failed, attempting releases fallback..." -ForegroundColor Yellow
+    $releaseUrl = "https://github.com/mads2570/Amajid-winutil/releases/latest/download/winutil.ps1"
+    try {
+        $winutil = Invoke-RestMethod -Uri $releaseUrl -UseBasicParsing
+        Invoke-Expression -Command $winutil
+    } catch {
+        Write-Error "Could not retrieve WinUtil script: $_"
+    }
+}

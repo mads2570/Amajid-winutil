@@ -1,4 +1,36 @@
 {
+    "goodbyedpi": {
+        "category": "Utilities",
+        "choco": "na",
+        "content": "GoodbyeDPI",
+        "description": "Deep Packet Inspection circumvention utility for Windows by ValdikSS.",
+        "link": "https://github.com/ValdikSS/GoodbyeDPI",
+        "winget": "ValdikSS.GoodbyeDPI"
+    },
+    "zapret": {
+        "category": "Utilities",
+        "choco": "na",
+        "content": "Zapret (winws)",
+        "description": "DPI circumvention tool (winws) to unblock YouTube, Discord, and restricted sites.",
+        "link": "https://github.com/bol-van/zapret",
+        "winget": "na"
+    },
+    "omniroute": {
+        "category": "Development",
+        "choco": "na",
+        "content": "OmniRoute AI Gateway",
+        "description": "Local unified routing gateway for AI models and completions.",
+        "link": "https://github.com/dreadnode/OmniRoute",
+        "winget": "na"
+    },
+    "openclaw": {
+        "category": "Development",
+        "choco": "na",
+        "content": "OpenClaw Agent Platform",
+        "description": "Multi-agent coding system and tool executor powered by OmniRoute.",
+        "link": "https://github.com/openclaw/openclaw",
+        "winget": "na"
+    },
     "1password": {
         "category": "Utilities",
         "choco": "1password",
